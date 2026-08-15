@@ -15,7 +15,7 @@ library(broom)        # tidy model summaries
 
 set.seed(42)
 
-ames <- read.csv("ames_cleaned.csv", stringsAsFactors = FALSE)
+ames <- read.csv("R_Data_Cleaning_&_Analysis/week1_task/ames_cleaned.csv", stringsAsFactors = FALSE)
 
 ## 1. DATASET RATIONALE -----
 # The Ames Housing dataset is well suited to predictive modeling: it has a
