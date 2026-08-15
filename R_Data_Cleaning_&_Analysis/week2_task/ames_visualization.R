@@ -1,13 +1,12 @@
-##############################################################################
+
 # Project: Data Visualization and Insight Communication using R
 # Dataset: Ames Housing Dataset (cleaned in Week 1 -> ames_cleaned.csv)
-# Author:  [Your Name]
+# Author:  Nitesh Yadav
 # Purpose: Build a suite of ggplot2 visualizations that communicate the key
 #          drivers of residential sale price in Ames, Iowa to a non-technical
 #          audience.
-##############################################################################
 
-## 0. SETUP -----------------------------------------------------------------
+## 0. SETUP -----
 # install.packages(c("tidyverse","scales","corrplot","forcats","ggridges"))
 library(tidyverse)   # ggplot2, dplyr, forcats
 library(scales)      # dollar/percent axis labels
@@ -22,13 +21,13 @@ theme_report <- theme_minimal(base_size = 12) +
         panel.grid.minor = element_blank())
 theme_set(theme_report)
 
-## 1. DATA OVERVIEW -----------------------------------------------------------
+## 1. DATA OVERVIEW -----
 dim(ames)
 str(ames[, c("sale_price","gr_liv_area","overall_qual","neighborhood",
              "house_style","yr_sold","mo_sold","central_air")])
 summary(ames$sale_price)
 
-## 2. VISUALIZATION 1 — HISTOGRAM: Distribution of Sale Price ----------------
+## 2. VISUALIZATION 1 — HISTOGRAM: Distribution of Sale Price ----
 ggplot(ames, aes(x = sale_price)) +
   geom_histogram(bins = 45, fill = "#4C72B0", color = "white") +
   geom_vline(xintercept = median(ames$sale_price), linetype = "dashed", color = "red") +
@@ -37,7 +36,7 @@ ggplot(ames, aes(x = sale_price)) +
        subtitle = "Distribution of Sale Price (2006-2010) — dashed line = median",
        x = "Sale Price", y = "Number of Homes")
 
-## 3. VISUALIZATION 2 — BAR CHART: Average Sale Price by House Style ---------
+## 3. VISUALIZATION 2 — BAR CHART: Average Sale Price by House Style --
 style_summary <- ames %>%
   group_by(house_style) %>%
   summarise(avg_price = mean(sale_price), n = n()) %>%
@@ -52,7 +51,7 @@ ggplot(style_summary, aes(x = reorder(house_style, avg_price), y = avg_price)) +
        subtitle = "Average Sale Price by House Style",
        x = NULL, y = "Average Sale Price")
 
-## 4. VISUALIZATION 3 — BOXPLOT: Sale Price by Overall Quality Rating --------
+## 4. VISUALIZATION 3 — BOXPLOT: Sale Price by Overall Quality Rating ----
 ggplot(ames, aes(x = factor(overall_qual), y = sale_price)) +
   geom_boxplot(fill = "#DD8452", outlier.alpha = .3) +
   scale_y_continuous(labels = dollar_format()) +
@@ -70,7 +69,7 @@ ggplot(ames, aes(x = gr_liv_area, y = sale_price, color = overall_qual)) +
        subtitle = "Sale Price vs Above-Grade Living Area, colored by Overall Quality",
        x = "Above-Grade Living Area (sq ft)", y = "Sale Price")
 
-## 6. VISUALIZATION 5 — BOXPLOT: Sale Price by Top 10 Neighborhoods ----------
+## 6. VISUALIZATION 5 — BOXPLOT: Sale Price by Top 10 Neighborhoods ---
 top_nb <- ames %>% count(neighborhood, sort = TRUE) %>% slice_head(n = 10) %>% pull(neighborhood)
 
 ames %>%
@@ -96,7 +95,7 @@ ggplot(monthly, aes(x = mo_sold, y = n_sales)) +
        subtitle = "Number of Homes Sold by Month (2006-2010, pooled)",
        x = "Month", y = "Number of Sales")
 
-## 8. VISUALIZATION 7 — LINE CHART: Median Sale Price Trend by Year Sold -----
+## 8. VISUALIZATION 7 — LINE CHART: Median Sale Price Trend by Year Sold --
 yearly <- ames %>%
   group_by(yr_sold) %>%
   summarise(median_price = median(sale_price), n_sales = n())
@@ -132,7 +131,7 @@ ggplot(comp, aes(x = bldg_type, y = n, fill = house_style)) +
        x = "Building Type", y = "Share of Homes", fill = "House Style") +
   theme(axis.text.x = element_text(angle = 20, hjust = 1))
 
-## 11. VISUALIZATION 10 — CORRELATION HEATMAP: Key Numeric Predictors --------
+## 11. VISUALIZATION 10 — CORRELATION HEATMAP: Key Numeric Predictors ----
 num_vars <- c("sale_price","gr_liv_area","total_bsmt_sf","garage_area",
               "overall_qual","year_built","full_bath","totrms_abvgrd")
 corr_matrix <- cor(ames[, num_vars], use = "complete.obs")
@@ -141,7 +140,7 @@ corrplot(corr_matrix, method = "color", type = "upper", addCoef.col = "black",
          title = "Correlation Between Sale Price and Key Home Features",
          mar = c(0,0,2,0))
 
-## 12. VISUALIZATION 11 — BAR CHART: Average Price by Garage Type ------------
+## 12. VISUALIZATION 11 — BAR CHART: Average Price by Garage Type ----
 garage_summary <- ames %>%
   group_by(garage_type) %>%
   summarise(avg_price = mean(sale_price), n = n()) %>%
@@ -157,7 +156,7 @@ ggplot(garage_summary, aes(x = reorder(garage_type, avg_price), y = avg_price)) 
        subtitle = "Average Sale Price by Garage Type",
        x = NULL, y = "Average Sale Price")
 
-## 13. VISUALIZATION 12 — FACETED HISTOGRAM: Sale Price by Quality Tier ------
+## 13. VISUALIZATION 12 — FACETED HISTOGRAM: Sale Price by Quality Tier ---
 ames <- ames %>%
   mutate(quality_tier = case_when(
     overall_qual <= 4 ~ "Low (1-4)",
@@ -177,6 +176,4 @@ ggplot(ames, aes(x = sale_price, fill = quality_tier)) +
        subtitle = "Sale Price Distribution Faceted by Quality Tier",
        x = "Sale Price", y = "Count")
 
-##############################################################################
-# END OF SCRIPT
-##############################################################################
+
