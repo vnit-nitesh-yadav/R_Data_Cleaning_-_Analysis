@@ -1,13 +1,11 @@
-##############################################################################
 # Project: Statistical Analysis and Predictive Modeling using R
 # Dataset: Ames Housing Dataset (cleaned in Week 1 -> ames_cleaned.csv)
-# Author:  [Your Name]
+# Author:  Nitesh Yadav
 # Purpose: Test formal hypotheses about the drivers of home sale price, then
 #          build, validate, and diagnose a multiple linear regression model
 #          that predicts Sale Price from property characteristics.
-##############################################################################
 
-## 0. SETUP -------------------------------------------------------------
+## 0. SETUP -----
 # install.packages(c("tidyverse","caret","car","lmtest","broom","ggplot2"))
 library(tidyverse)
 library(caret)      # train/test split, k-fold cross-validation
@@ -19,7 +17,7 @@ set.seed(42)
 
 ames <- read.csv("ames_cleaned.csv", stringsAsFactors = FALSE)
 
-## 1. DATASET RATIONALE ---------------------------------------------------
+## 1. DATASET RATIONALE -----
 # The Ames Housing dataset is well suited to predictive modeling: it has a
 # continuous, business-relevant target (Sale Price), a rich mix of numeric
 # and categorical predictors, enough observations (2,927) for a reliable
@@ -30,7 +28,7 @@ ames <- read.csv("ames_cleaned.csv", stringsAsFactors = FALSE)
 # the natural, most useful prediction target here is the price itself
 # (a continuous quantity), not a class label.
 
-## 2. EXPLORATORY STATISTICAL ANALYSIS ---------------------------------------
+## 2. EXPLORATORY STATISTICAL ANALYSIS ------
 
 ## 2.1 Normality of Sale Price
 shapiro.test(ames$sale_price)   # Shapiro-Wilk (n = 2927, within the 5000 limit)
@@ -64,7 +62,7 @@ TukeyHSD(anova_model)   # post-hoc pairwise comparisons
 ## H1: Central Air and Building Type are associated
 chisq.test(table(ames$central_air, ames$bldg_type))
 
-## 3. FEATURE SELECTION FOR MODELING -----------------------------------------
+## 3. FEATURE SELECTION FOR MODELING ------
 model_vars <- c("sale_price","overall_qual","gr_liv_area","total_bsmt_sf",
                  "garage_area","year_built","full_bath","totrms_abvgrd",
                  "lot_area","fireplaces","neighborhood","central_air",
@@ -74,13 +72,13 @@ model_data$central_air <- factor(model_data$central_air)
 model_data$bldg_type   <- factor(model_data$bldg_type)
 model_data$neighborhood <- factor(model_data$neighborhood)
 
-## 4. TRAIN / TEST SPLIT ------------------------------------------------------
+## 4. TRAIN / TEST SPLIT -------
 train_idx <- createDataPartition(model_data$sale_price, p = 0.8, list = FALSE)
 train_set <- model_data[train_idx, ]
 test_set  <- model_data[-train_idx, ]
 nrow(train_set); nrow(test_set)
 
-## 5. MODEL BUILDING: MULTIPLE LINEAR REGRESSION ------------------------------
+## 5. MODEL BUILDING: MULTIPLE LINEAR REGRESSION -------
 
 ## 5.1 Baseline model - core continuous predictors only
 model_base <- lm(sale_price ~ overall_qual + gr_liv_area + total_bsmt_sf +
@@ -98,7 +96,7 @@ summary(model_full)
 ## 5.3 Compare nested models
 anova(model_base, model_full)
 
-## 6. K-FOLD CROSS-VALIDATION --------------------------------------------------
+## 6. K-FOLD CROSS-VALIDATION ---------
 cv_control <- trainControl(method = "cv", number = 10)
 cv_model <- train(sale_price ~ overall_qual + gr_liv_area + total_bsmt_sf +
                      garage_area + year_built + full_bath + totrms_abvgrd +
@@ -107,12 +105,12 @@ cv_model <- train(sale_price ~ overall_qual + gr_liv_area + total_bsmt_sf +
 print(cv_model)          # 10-fold CV RMSE / R-squared / MAE
 cv_model$resample        # per-fold performance
 
-## 7. TEST-SET PERFORMANCE -----------------------------------------------------
+## 7. TEST-SET PERFORMANCE ---------
 predictions <- predict(model_full, newdata = test_set)
 test_results <- postResample(pred = predictions, obs = test_set$sale_price)
 print(test_results)      # RMSE, Rsquared, MAE on held-out test data
 
-## 8. MODEL DIAGNOSTICS ---------------------------------------------------------
+## 8. MODEL DIAGNOSTICS --------
 
 ## 8.1 Residuals vs Fitted (linearity & homoscedasticity)
 plot(model_full, which = 1)
@@ -138,7 +136,7 @@ plot(test_set$sale_price, predictions,
      main = "Actual vs Predicted Sale Price (Test Set)")
 abline(0, 1, col = "red", lwd = 2)
 
-## 9. LOG-TRANSFORMED MODEL (addressing skew / heteroscedasticity) -----------
+## 9. LOG-TRANSFORMED MODEL (addressing skew / heteroscedasticity) ----
 train_set$log_sale_price <- log(train_set$sale_price)
 test_set$log_sale_price  <- log(test_set$sale_price)
 
@@ -152,10 +150,8 @@ bptest(model_log)
 log_predictions <- exp(predict(model_log, newdata = test_set))  # back-transform
 postResample(pred = log_predictions, obs = test_set$sale_price)
 
-## 10. EXPORT MODEL OBJECTS ---------------------------------------------------
+## 10. EXPORT MODEL OBJECTS ----------
 saveRDS(model_full, "ames_lm_full.rds")
 saveRDS(model_log,  "ames_lm_log.rds")
 
-##############################################################################
-# END OF SCRIPT
-##############################################################################
+
