@@ -17,7 +17,7 @@ library(moments)      # skewness / kurtosis
 set.seed(123)
 
 ## 1. LOAD THE DATA ------
-ames <- read.csv("AmesHousing.csv", stringsAsFactors = FALSE)
+ames <- read.csv("R_Data_Cleaning_&_Analysis/week1_task/ames_cleaned.csv", stringsAsFactors = FALSE)
 ames <- janitor::clean_names(ames)   # snake_case column names
 
 ## 1.1 First look
