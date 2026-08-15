@@ -5,7 +5,7 @@
 #          summary statistics, and derive initial insights about residential
 #          property sale prices in Ames, Iowa (2006-2010).
 
-## 0. SETUP -------------------------------------------------------------
+## 0. SETUP ------
 # install.packages(c("tidyverse","psych","corrplot","VIM","janitor","moments"))
 library(tidyverse)   # dplyr, ggplot2, tidyr, readr
 library(psych)       # describe()
@@ -16,7 +16,7 @@ library(moments)      # skewness / kurtosis
 
 set.seed(123)
 
-## 1. LOAD THE DATA -------------------------------------------------------
+## 1. LOAD THE DATA ------
 ames <- read.csv("AmesHousing.csv", stringsAsFactors = FALSE)
 ames <- janitor::clean_names(ames)   # snake_case column names
 
@@ -26,7 +26,7 @@ str(ames)                 # data types / structure
 head(ames, 5)
 summary(ames$sale_price)  # target variable
 
-## 2. MISSING VALUE ANALYSIS ----------------------------------------------
+## 2. MISSING VALUE ANALYSIS ------
 missing_summary <- data.frame(
   variable   = names(ames),
   n_missing  = colSums(is.na(ames)),
@@ -43,7 +43,7 @@ VIM::aggr(ames[, missing_summary$variable[1:10]],
           cex.axis = .6, gap = 3,
           labels = missing_summary$variable[1:10])
 
-## 3. DATA CLEANING ---------------------------------------------------------
+## 3. DATA CLEANING ------
 
 ## 3.1 Structural NAs -> "None" (the data dictionary states that NA for
 ##     these fields means the house does NOT have that feature, so it is
@@ -86,7 +86,7 @@ ames$electrical[is.na(ames$electrical)] <- mode_electrical
 sum(is.na(ames %>% select(-c())))     # remaining NAs, if any, by design (rare)
 colSums(is.na(ames))[colSums(is.na(ames)) > 0]
 
-## 4. OUTLIER DETECTION -----------------------------------------------------
+## 4. OUTLIER DETECTION ------
 
 ## 4.1 Boxplot-based visual check on the target and key predictor
 boxplot(ames$sale_price, main = "Boxplot of Sale Price", col = "skyblue")
@@ -112,7 +112,7 @@ ames_clean <- ames %>%
 
 dim(ames_clean)   # rows dropped
 
-## 5. NORMALIZATION / SCALING ------------------------------------------------
+## 5. NORMALIZATION / SCALING --------
 num_vars <- c("sale_price","gr_liv_area","total_bsmt_sf","lot_area",
               "year_built","overall_qual","garage_area")
 
@@ -126,7 +126,7 @@ ames_scaled <- ames_clean %>%
 ames_scaled <- ames_scaled %>%
   mutate(across(all_of(num_vars), ~ as.numeric(scale(.x)), .names = "{.col}_z"))
 
-## 6. ENCODING CATEGORICAL VARIABLES ----------------------------------------
+## 6. ENCODING CATEGORICAL VARIABLES ---
 
 ## 6.1 Ordinal encoding for quality/condition scales (Po < Fa < TA < Gd < Ex)
 qual_levels <- c("None","Po","Fa","TA","Gd","Ex")
@@ -148,7 +148,7 @@ ames_encoded <- cbind(ames_scaled, as.data.frame(dummies))
 
 dim(ames_encoded)   # final width after one-hot encoding
 
-## 7. EXPLORATORY DATA ANALYSIS ----------------------------------------------
+## 7. EXPLORATORY DATA ANALYSIS -----
 
 ## 7.1 Structure & summary statistics
 str(ames_clean)
@@ -196,7 +196,7 @@ table(ames_clean$house_style)
 table(ames_clean$central_air)
 prop.table(table(ames_clean$sale_condition)) * 100
 
-## 8. EXPORT THE CLEANED DATASET --------------------------------------------
+## 8. EXPORT THE CLEANED DATASET -----
 write.csv(ames_clean,   "ames_cleaned.csv",   row.names = FALSE)
 write.csv(ames_encoded, "ames_model_ready.csv", row.names = FALSE)
 
