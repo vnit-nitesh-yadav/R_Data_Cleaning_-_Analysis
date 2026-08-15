@@ -13,7 +13,7 @@ library(scales)      # dollar/percent axis labels
 library(corrplot)    # correlation heatmap
 library(ggridges)    # ridgeline plots
 
-ames <- read.csv("ames_cleaned.csv", stringsAsFactors = FALSE)
+ames <- read.csv("R_Data_Cleaning_&_Analysis/week1_task/ames_cleaned.csv", stringsAsFactors = FALSE)
 
 theme_report <- theme_minimal(base_size = 12) +
   theme(plot.title = element_text(face = "bold", size = 14),
